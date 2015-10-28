@@ -2,7 +2,7 @@ void setup() {
   String[] rawMs = loadStrings("/home/braeden/sketchbook/Projects/SpellChk/SpellChk/missspelled.txt"); //Import the misspelled passage
   String stripMs = ""; //Declare string to append to
   for (int i = 0; i < rawMs.length; i++) {
-    stripMs += rawMs[i].replaceAll("[^\\w\\s]", "").toLowerCase(); //Strip punctuation with regex from the rest of the elements and downcase it
+    stripMs += rawMs[i].replaceAll("[^\\w\\s-']", "").toLowerCase(); //Strip punctuation with regex except ' and - from the rest of the elements and downcase it
   }
   String[] MsArray = split(stripMs, ' '); //Split it at any spaces, and put in string array
   String[] rawDict = loadStrings("/home/braeden/sketchbook/Projects/SpellChk/SpellChk/words.txt"); //Proccessing splits on line break (/n) automatically
