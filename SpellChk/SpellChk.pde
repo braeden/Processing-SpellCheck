@@ -1,19 +1,38 @@
+import java.util.Arrays;
 void setup() {
+  String misspelledPassage = "/home/braeden/sketchbook/Projects/SpellChk/SpellChk/words.txt"; //User can change this
   String[] rawMs = loadStrings("/home/braeden/sketchbook/Projects/SpellChk/SpellChk/missspelled.txt"); //Import the misspelled passage
   String stripMs = ""; //Declare string to append to
   for (int i = 0; i < rawMs.length; i++) {
-    stripMs += rawMs[i].replaceAll("[^\\w\\s-']", "").toLowerCase(); //Strip punctuation with regex except ' and - from the rest of the elements and downcase it
+    stripMs += rawMs[i].replaceAll("[^\\w\\s']", "").toLowerCase(); //Replace everything thats not a-zA-Z, whitespace, or ' with nothing
   }
   String[] MsArray = split(stripMs, ' '); //Split it at any spaces, and put in string array
-  String[] rawDict = loadStrings("/home/braeden/sketchbook/Projects/SpellChk/SpellChk/words.txt"); //Proccessing splits on line break (/n) automatically
-  Hash h = new Hash();
-  for (int i = 0; i < rawDict.length; i++) { //Add dictonary to array
-    h.addto(rawDict[i]);
+  String[] rawDict = loadStrings(misspelledPassage); //Proccessing splits on line break (/n) automatically
+  Hash h = new Hash(rawDict.length);
+  for (int i = 0; i < rawDict.length; i++) {
+    h.insert(rawDict[i], i);
   }
   println("Misspellings:");
   for (int i = 0; i < MsArray.length; i++) {
-    if (h.getfrom(MsArray[i]) == null) {
-      println(MsArray[i] + " - word number: " + i);
+    if (h.fetch(MsArray[i]) == null && MsArray[i].length() != 0) { 
+
+/*
+**Imporant NOTE:**
+The program generates seemingly blank values for the array 
+and the element length is the only to check. 
+
+-They occur when stripping "--"
+-They are not null elements
+-They are not ""
+-They are not a space " "
+-.charAt(anyNum) returns out of bounds - (0),(1),(-1)
+-There are 4 that occur in the passage [202],[225],[240],[253]
+
+**If you have any ideas what they are, please let me know**
+**Does not effect the functionality of the program**
+
+*/ 
+      println(MsArray[i] + " - Word number: " + i);
     }
   }
   /*
@@ -23,19 +42,56 @@ void setup() {
    geat
    peeple
    */
-  exit();
+  exit(); //Kill window when complete
 }
+
+class HashEntry {
+  String keyA;
+  int value;
+  HashEntry link;
+  HashEntry(String k, int v) {
+    keyA = k;
+    value = v;
+  }
+}
+
 class Hash {
-  String[] storage;
-  Hash() {
-    storage = new String[200000];
+  HashEntry table[];
+  int size;
+  Hash(int s) {
+    table = new HashEntry[s];
+    size = s;
   }
-  void addto(String k) {
-    int index = abs(k.hashCode()) % storage.length;
-    storage[index] = k;
+  int HashIt(String k) { //Abstracted the hash function
+    return(abs(k.hashCode()) % table.length);
   }
-  String getfrom(String k) {
-    int index = abs(k.hashCode()) % storage.length;
-    return(storage[index]);
+  void insert(String keyA, int index) { //Add to hash function
+    int hashVal = HashIt(keyA);
+    HashEntry entry = table[hashVal];
+    if (entry != null) {
+      if (entry.keyA.equals(keyA)) { //If its already there
+        entry.value = index;
+      } else {
+        while (entry.link != null) { //Keep checking links while something exists in the entry
+          entry = entry.link;
+        }
+        HashEntry oldEntry = new HashEntry(keyA, index); 
+        entry.link = oldEntry; //When thats finished make a new link
+      }
+    } else { //Insert directly since there is nothing
+      HashEntry newEntry = new HashEntry(keyA, index);
+      table[hashVal] = newEntry;
+    }
+  }
+  String fetch(String keyA) { //Get from hash function
+    int hashVal = HashIt(keyA);
+    HashEntry entry = table[hashVal];
+    while (entry != null) {
+      if (entry.keyA.equals(keyA)) {
+        return entry.keyA; //Found it
+      }
+      entry = entry.link; //Goes to next link
+    }
+    return null; //Does not occur in hash (misspelled)
   }
 }
