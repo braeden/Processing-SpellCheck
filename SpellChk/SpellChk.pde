@@ -3,8 +3,10 @@ void setup() {
   String[] rawMs = loadStrings("/home/braeden/sketchbook/Projects/SpellChk/SpellChk/missspelled.txt"); //Import the misspelled passage
   String stripMs = ""; //Declare string to append to
   for (int i = 0; i < rawMs.length; i++) {
-    stripMs += rawMs[i].replaceAll("[^\\w\\s']", "").toLowerCase(); //Replace everything thats not a-zA-Z, whitespace, or ' with nothing
+    stripMs += rawMs[i].replaceAll("[^\\w\\s\\-']", "").toLowerCase(); //Replace everything thats not a-zA-Z, whitespace, -, or ' with nothing
   }
+  stripMs = stripMs.replace("--", ""); //Handle double hypens for this passage, could not get regex lookaround to work
+  stripMs = stripMs.replace("/\\s{2,}/g"," "); //Strip if more than 1 space
   String[] MsArray = split(stripMs, ' '); //Split it at any spaces, and put in string array
   String[] rawDict = loadStrings(misspelledPassage); //Proccessing splits on line break (/n) automatically
   Hash h = new Hash(rawDict.length);
@@ -18,16 +20,14 @@ void setup() {
 /*
 **Imporant NOTE:**
 The program generates seemingly blank values for the array 
-and the element length is the only to check. 
+and the element length is the best way to check.
 
 -They occur when stripping "--"
--They are not null elements
--They are not ""
--They are not a space " "
 -.charAt(anyNum) returns out of bounds - (0),(1),(-1)
 -There are 4 that occur in the passage [202],[225],[240],[253]
 
-**If you have any ideas what they are, please let me know**
+-They are ""
+
 **Does not effect the functionality of the program**
 
 */ 
