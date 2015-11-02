@@ -1,4 +1,3 @@
-import java.util.Arrays;
 void setup() {
   String misspelledPassage = "/home/braeden/sketchbook/Projects/SpellChk/SpellChk/words.txt"; //User can change this
   String[] rawMs = loadStrings("/home/braeden/sketchbook/Projects/SpellChk/SpellChk/missspelled.txt"); //Import the misspelled passage
@@ -68,16 +67,14 @@ class Hash {
   void insert(String keyA, int index) { //Add to hash function
     int hashVal = HashIt(keyA);
     HashEntry entry = table[hashVal];
-    if (entry != null) {
-      if (entry.keyA.equals(keyA)) { //If its already there
-        entry.value = index;
-      } else {
-        while (entry.link != null) { //Keep checking links while something exists in the entry
-          entry = entry.link;
-        }
-        HashEntry oldEntry = new HashEntry(keyA, index); 
-        entry.link = oldEntry; //When thats finished make a new link
+    if (entry != null && entry.keyA.equals(keyA)) { //If its already there
+      entry.value = index;
+    } else if (entry != null && !entry.keyA.equals(keyA)) {
+      while (entry.link != null) { //Keep checking links while something exists in the entry
+        entry = entry.link;
       }
+      HashEntry oldEntry = new HashEntry(keyA, index); 
+      entry.link = oldEntry; //When thats finished make a new link
     } else { //Insert directly since there is nothing
       HashEntry newEntry = new HashEntry(keyA, index);
       table[hashVal] = newEntry;
